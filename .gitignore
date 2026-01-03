@@ -1,0 +1,64 @@
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# IDE Files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# PHP
+vendor/
+composer.lock
+*.log
+*.cache
+
+# Node modules (if any)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+config.local.php
+
+# Uploads directory (optional - uncomment if you don't want to track uploads)
+# uploads/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Database dumps (optional - uncomment if you don't want to track dumps)
+# *.sql
+# database/dumps/
+
+# Old/backup directories
+old_*/
+backup/
+backups/
+
+# Cache directories
+cache/
+tmp/
+temp/
+

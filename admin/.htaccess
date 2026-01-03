@@ -1,0 +1,8 @@
+# Set login.php as the directory index
+DirectoryIndex login.php index.php
+
+# Redirect /admin/ or /admin (without trailing file) to login.php
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/online-sp/admin/?$
+RewriteRule ^(.*)$ /online-sp/admin/login.php [R=302,L]
+
