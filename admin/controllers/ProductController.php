@@ -43,9 +43,20 @@ class ProductController extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->handleCreate();
         } else {
+            // Load categories and subcategories for the form
+            require_once __DIR__ . '/../models/CategoryModel.php';
+            require_once __DIR__ . '/../models/SubcategoryModel.php';
+            $categoryModel = new CategoryModel();
+            $subcategoryModel = new SubcategoryModel();
+            
+            $categories = $categoryModel->getAll();
+            $allSubcategories = $subcategoryModel->getAll();
+            
             $flash = $this->getFlash();
             $this->render('products/create', [
                 'product' => null,
+                'categories' => $categories,
+                'subcategories' => $allSubcategories,
                 'flash' => $flash
             ]);
         }
@@ -61,6 +72,8 @@ class ProductController extends Controller
         $title = trim($_POST['title'] ?? '');
         $slug = trim($_POST['slug'] ?? '');
         $description = trim($_POST['description'] ?? '');
+        $categoryId = !empty($_POST['category_id']) ? (int)$_POST['category_id'] : null;
+        $subcategoryId = !empty($_POST['subcategory_id']) ? (int)$_POST['subcategory_id'] : null;
         $isActive = isset($_POST['is_active']) ? 1 : 0;
         $isOutOfStock = isset($_POST['is_out_of_stock']) ? 1 : 0;
 
@@ -86,6 +99,12 @@ class ProductController extends Controller
 
         if (empty($slug)) {
             $this->setFlash('Slug is required.', 'error');
+            $this->redirect(admin_url('index.php?page=products&action=create'));
+            return;
+        }
+        
+        if (empty($categoryId)) {
+            $this->setFlash('Category is required.', 'error');
             $this->redirect(admin_url('index.php?page=products&action=create'));
             return;
         }
@@ -161,12 +180,12 @@ class ProductController extends Controller
             $productData = [
                 'name' => $title,
                 'slug' => $slug,
+                'category_id' => $categoryId,
+                'group_id' => !empty($subcategoryId) ? $subcategoryId : null, // subcategory_id stored as group_id
             ];
             
-            // Add optional fields only if they have values
-            if (!empty($productCode)) {
-                $productData['product_code'] = $productCode;
-            }
+            // Add optional fields
+            $productData['product_code'] = !empty($productCode) ? $productCode : null;
             if (!empty($description)) {
                 $productData['description'] = $description;
             }
@@ -325,9 +344,20 @@ class ProductController extends Controller
                 return;
             }
 
+            // Load categories and subcategories for the form
+            require_once __DIR__ . '/../models/CategoryModel.php';
+            require_once __DIR__ . '/../models/SubcategoryModel.php';
+            $categoryModel = new CategoryModel();
+            $subcategoryModel = new SubcategoryModel();
+            
+            $categories = $categoryModel->getAll();
+            $allSubcategories = $subcategoryModel->getAll();
+
             $flash = $this->getFlash();
             $this->render('products/edit', [
                 'product' => $product,
+                'categories' => $categories,
+                'subcategories' => $allSubcategories,
                 'flash' => $flash
             ]);
         }
@@ -343,6 +373,8 @@ class ProductController extends Controller
         $title = trim($_POST['title'] ?? '');
         $slug = trim($_POST['slug'] ?? '');
         $description = trim($_POST['description'] ?? '');
+        $categoryId = (int)($_POST['category_id'] ?? 0);
+        $subcategoryId = (int)($_POST['subcategory_id'] ?? 0); // Optional
         $isActive = isset($_POST['is_active']) ? 1 : 0;
         $isOutOfStock = isset($_POST['is_out_of_stock']) ? 1 : 0;
 
@@ -382,6 +414,13 @@ class ProductController extends Controller
         // Check if product code exists for another product
         if (!empty($productCode) && $this->productModel->productCodeExists($productCode, $id)) {
             $this->setFlash('Product code already exists. Please choose a different one.', 'error');
+            $this->redirect(admin_url('index.php?page=products&action=edit&id=' . $id));
+            return;
+        }
+        
+        // Validation
+        if (empty($categoryId)) {
+            $this->setFlash('Category is required.', 'error');
             $this->redirect(admin_url('index.php?page=products&action=edit&id=' . $id));
             return;
         }
@@ -469,14 +508,12 @@ class ProductController extends Controller
             $productData = [
                 'name' => $title,
                 'slug' => $slug,
+                'category_id' => $categoryId,
             ];
             
             // Add optional fields
-            if (!empty($productCode)) {
-                $productData['product_code'] = $productCode;
-            } else {
-                $productData['product_code'] = null;
-            }
+            $productData['product_code'] = !empty($productCode) ? $productCode : null;
+            $productData['group_id'] = $subcategoryId > 0 ? $subcategoryId : null;
             
             if (!empty($description)) {
                 $productData['description'] = $description;

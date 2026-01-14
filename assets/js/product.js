@@ -160,14 +160,22 @@ const fallbackProduct = {
 
 const query = new URLSearchParams(window.location.search);
 const productId = query.get('id');
-const product = (productId && productData[productId]) || null;
-const yearEl = document.getElementById('year');
-if (yearEl) {
-  yearEl.textContent = new Date().getFullYear();
-}
+const productSlug = query.get('slug');
 
-const mainSection = document.getElementById('product-main');
-const emptyState = document.getElementById('product-empty');
+// Check if product-name already has content (rendered by PHP) - if so, skip JavaScript override
+const productNameEl = document.getElementById('product-name');
+const hasPHPContent = productNameEl && productNameEl.textContent.trim().length > 0 && productSlug;
+
+// Only run JavaScript product data code if using old ID-based system (not slug-based PHP system)
+if (!hasPHPContent && productId && !productSlug) {
+  const product = (productId && productData[productId]) || null;
+  const yearEl = document.getElementById('year');
+  if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+  }
+
+  const mainSection = document.getElementById('product-main');
+  const emptyState = document.getElementById('product-empty');
 
 const populateList = (containerId, items) => {
   const list = document.getElementById(containerId);
@@ -221,4 +229,11 @@ if (product) {
   populateList('origin-list', fallbackProduct.origin);
   populateList('tasting-list', fallbackProduct.tasting);
   populateList('usage-list', fallbackProduct.usage);
+  }
+} else {
+  // PHP-rendered content - just update year if needed
+  const yearEl = document.getElementById('year');
+  if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+  }
 }

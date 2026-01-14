@@ -27,6 +27,28 @@ ob_start();
         </div>
 
         <div class="col-md-6">
+            <label for="category_id" class="form-label">Category *</label>
+            <select class="form-select" id="category_id" name="category_id" required>
+                <option value="">Select Category</option>
+                <?php if (!empty($categories)): ?>
+                    <?php foreach ($categories as $category): ?>
+                        <option value="<?= $category['id'] ?>" <?= ($product['category_id'] ?? null) == $category['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($category['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="subcategory_id" class="form-label">Subcategory</label>
+            <select class="form-select" id="subcategory_id" name="subcategory_id">
+                <option value="">Select Subcategory (Optional)</option>
+            </select>
+            <div class="form-text">Optional: Select a subcategory</div>
+        </div>
+
+        <div class="col-md-6">
             <label for="product_code" class="form-label">Product Code</label>
             <input type="text" class="form-control" id="product_code" name="product_code" 
                    value="<?= htmlspecialchars($product['product_code'] ?? '') ?>"
@@ -347,6 +369,41 @@ ob_start();
 
     // Initialize
     updateRemoveButtons();
+    
+    // Category/Subcategory dynamic loading
+    const categorySelect = document.getElementById('category_id');
+    const subcategorySelect = document.getElementById('subcategory_id');
+    const allSubcategories = <?= json_encode($subcategories ?? []) ?>;
+    const currentCategoryId = <?= $product['category_id'] ?? 'null' ?>;
+    const currentSubcategoryId = <?= $product['group_id'] ?? 'null' ?>;
+    
+    if (categorySelect && subcategorySelect) {
+        function updateSubcategories() {
+            const selectedCategoryId = categorySelect.value;
+            subcategorySelect.innerHTML = '<option value="">Select Subcategory (Optional)</option>';
+            
+            if (selectedCategoryId) {
+                const filteredSubcategories = allSubcategories.filter(sub => sub.category_id == selectedCategoryId);
+                filteredSubcategories.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub.id;
+                    option.textContent = sub.name;
+                    if (currentSubcategoryId && sub.id == currentSubcategoryId) {
+                        option.selected = true;
+                    }
+                    subcategorySelect.appendChild(option);
+                });
+            }
+        }
+        
+        // Load subcategories on page load if category is selected
+        if (currentCategoryId) {
+            updateSubcategories();
+        }
+        
+        // Load subcategories when category changes
+        categorySelect.addEventListener('change', updateSubcategories);
+    }
 })();
 </script>
 

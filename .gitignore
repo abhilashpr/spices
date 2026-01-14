@@ -37,6 +37,9 @@ yarn.lock
 .env
 .env.local
 .env.*.local
+
+# But keep .env.example
+!.env.example
 config.local.php
 
 # Uploads directory (optional - uncomment if you don't want to track uploads)

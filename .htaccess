@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /online-sp/
+
+# Allow access to actual files and directories (CSS, JS, images, etc.)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-l
+
+# Route everything else to index.php
+RewriteRule ^(.*)$ index.php [QSA,L]

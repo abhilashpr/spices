@@ -51,3 +51,5 @@ if ($exists) {
 echo "\nSetup complete! You can now login at /online-sp/admin/login.php\n";
 ?>
 
+
+

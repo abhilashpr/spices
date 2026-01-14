@@ -25,6 +25,26 @@ ob_start();
         </div>
 
         <div class="col-md-6">
+            <label for="category_id" class="form-label">Category *</label>
+            <select class="form-select" id="category_id" name="category_id" required>
+                <option value="">Select Category</option>
+                <?php if (!empty($categories)): ?>
+                    <?php foreach ($categories as $category): ?>
+                        <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="subcategory_id" class="form-label">Subcategory</label>
+            <select class="form-select" id="subcategory_id" name="subcategory_id">
+                <option value="">Select Subcategory (Optional)</option>
+            </select>
+            <div class="form-text">Optional: Select a subcategory</div>
+        </div>
+
+        <div class="col-md-6">
             <label for="product_code" class="form-label">Product Code</label>
             <input type="text" class="form-control" id="product_code" name="product_code" 
                    placeholder="PROD-001">
@@ -264,6 +284,31 @@ ob_start();
 
     // Initialize
     updateRemoveButtons();
+    
+    // Category/Subcategory dynamic loading
+    const categorySelect = document.getElementById('category_id');
+    const subcategorySelect = document.getElementById('subcategory_id');
+    const subcategories = <?= json_encode($subcategories ?? []) ?>;
+    
+    if (categorySelect && subcategorySelect) {
+        categorySelect.addEventListener('change', function() {
+            const categoryId = this.value;
+            subcategorySelect.innerHTML = '<option value="">Select Subcategory (Optional)</option>';
+            
+            if (categoryId) {
+                const filteredSubcategories = subcategories.filter(function(subcat) {
+                    return subcat.category_id == categoryId;
+                });
+                
+                filteredSubcategories.forEach(function(subcat) {
+                    const option = document.createElement('option');
+                    option.value = subcat.id;
+                    option.textContent = subcat.name;
+                    subcategorySelect.appendChild(option);
+                });
+            }
+        });
+    }
 })();
 </script>
 
